@@ -1,1 +1,2 @@
-# parkingmanagementsystem.github.io
+System Description
+ParkEase is a comprehensive Parking Management System designed to solve the common challenges faced by parking facilities — manual tracking, billing errors, slot congestion, and inefficient space utilization. The system provides a real-time dashboard, full CRUD management for all entities, automated slot status updates, and precise fee calculation based on parking duration and slot type.
