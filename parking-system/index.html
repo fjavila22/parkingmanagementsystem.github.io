@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParkEase - Parking Management System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
+<style>
+:root {
+  --primary: #1a56db;
+  --primary-dark: #1240a8;
+  --primary-light: #e8f0fd;
+  --secondary: #0ea5e9;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --dark: #0f172a;
+  --dark2: #1e293b;
+  --dark3: #334155;
+  --muted: #64748b;
+  --light: #f1f5f9;
+  --border: #e2e8f0;
+  --white: #ffffff;
+  --sidebar-w: 260px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--light); color: var(--dark); min-height: 100vh; }
+
+/* SIDEBAR */
+#sidebar {
+  position: fixed; top: 0; left: 0; height: 100vh; width: var(--sidebar-w);
+  background: var(--dark); z-index: 1000; transition: transform 0.3s ease;
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo .logo-icon {
+  width: 38px; height: 38px; background: var(--primary);
+  border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 18px; color: white; margin-right: 10px;
+}
+.sidebar-logo span { font-size: 18px; font-weight: 800; color: white; }
+.sidebar-logo small { display: block; font-size: 11px; color: var(--muted); margin-top: -2px; }
+.sidebar-nav { padding: 16px 12px; flex: 1; }
+.nav-section-label {
+  font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase;
+  letter-spacing: 0.1em; padding: 8px 10px 4px; margin-top: 8px;
+}
+.nav-item { margin: 2px 0; }
+.nav-link {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 8px; color: #94a3b8; font-size: 14px; font-weight: 500;
+  text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%;
+}
+.nav-link i { width: 18px; text-align: center; font-size: 15px; }
+.nav-link:hover { background: rgba(255,255,255,0.06); color: white; }
+.nav-link.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(26,86,219,0.3); }
+.sidebar-bottom {
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-bottom .badge-version {
+  font-size: 11px; color: var(--muted); display: block; text-align: center; padding: 4px;
+}
+
+/* TOPBAR */
+#topbar {
+  position: fixed; top: 0; left: var(--sidebar-w); right: 0;
+  height: 64px; background: white; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; z-index: 999; transition: left 0.3s ease;
+}
+.page-title { font-size: 18px; font-weight: 700; color: var(--dark); }
+.page-title span { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 8px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-time {
+  font-size: 13px; color: var(--muted); font-weight: 500;
+  background: var(--light); padding: 6px 12px; border-radius: 8px;
+}
+.btn-sidebar-toggle {
+  display: none; background: none; border: none; font-size: 20px; color: var(--dark); cursor: pointer;
+}
+
+/* MAIN */
+#main-content {
+  margin-left: var(--sidebar-w); margin-top: 64px; padding: 24px; min-height: calc(100vh - 64px);
+  transition: margin-left 0.3s ease;
+}
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
+
+/* CARDS */
+.stat-card {
+  background: white; border-radius: 16px; padding: 20px 24px;
+  border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.stat-card .icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.stat-card .value { font-size: 28px; font-weight: 800; margin: 8px 0 2px; line-height: 1; }
+.stat-card .label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.stat-card .trend { font-size: 12px; font-weight: 600; }
+
+.card-custom {
+  background: white; border-radius: 16px; border: 1px solid var(--border);
+  overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.card-header-custom {
+  padding: 18px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+.card-header-custom h5 { font-size: 15px; font-weight: 700; color: var(--dark); margin: 0; }
+.card-body-custom { padding: 0; }
+
+/* TABLES */
+.table-custom { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.table-custom thead th {
+  background: var(--light); padding: 12px 16px; font-weight: 700;
+  color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.table-custom tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.table-custom tbody tr:last-child td { border-bottom: none; }
+.table-custom tbody tr:hover { background: #fafbfc; }
+.table-responsive-custom { overflow-x: auto; }
+
+/* BADGES */
+.badge-available { background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-occupied { background: #fee2e2; color: #991b1b; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-active { background: #dbeafe; color: #1e40af; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-completed { background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-standard { background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-premium { background: #fef3c7; color: #92400e; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+
+/* BUTTONS */
+.btn-primary-custom {
+  background: var(--primary); color: white; border: none; padding: 9px 18px;
+  border-radius: 9px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px; transition: all 0.2s;
+}
+.btn-primary-custom:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.btn-icon {
+  width: 32px; height: 32px; border-radius: 7px; border: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; font-size: 13px;
+}
+.btn-edit { background: #dbeafe; color: #1e40af; }
+.btn-edit:hover { background: #1e40af; color: white; }
+.btn-delete { background: #fee2e2; color: #dc2626; }
+.btn-delete:hover { background: #dc2626; color: white; }
+.btn-view { background: #d1fae5; color: #059669; }
+.btn-view:hover { background: #059669; color: white; }
+.btn-checkout { background: #fef3c7; color: #d97706; }
+.btn-checkout:hover { background: #d97706; color: white; }
+
+/* SEARCH */
+.search-box {
+  position: relative; display: inline-flex; align-items: center;
+}
+.search-box i { position: absolute; left: 12px; color: var(--muted); font-size: 13px; }
+.search-box input {
+  padding: 8px 12px 8px 34px; border: 1px solid var(--border); border-radius: 9px;
+  font-size: 13px; outline: none; width: 220px; font-family: var(--font);
+  transition: border-color 0.2s;
+}
+.search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
+
+/* SLOT GRID */
+.slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding: 20px; }
+.slot-card {
+  border-radius: 12px; padding: 16px 12px; text-align: center;
+  border: 2px solid; cursor: pointer; transition: all 0.2s;
+}
+.slot-card.available { border-color: #10b981; background: #f0fdf4; }
+.slot-card.available:hover { background: #10b981; color: white; transform: scale(1.03); }
+.slot-card.occupied { border-color: #ef4444; background: #fef2f2; cursor: not-allowed; }
+.slot-card .slot-num { font-size: 22px; font-weight: 800; }
+.slot-card .slot-type { font-size: 11px; font-weight: 600; opacity: 0.7; margin-top: 2px; }
+.slot-card .slot-rate { font-size: 12px; font-weight: 700; margin-top: 4px; }
+
+/* MODALS */
+.modal-custom .modal-content { border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal-custom .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
+.modal-custom .modal-title { font-weight: 700; font-size: 16px; }
+.modal-custom .modal-body { padding: 20px 24px; }
+.modal-custom .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); }
+.form-label-custom { font-size: 13px; font-weight: 600; color: var(--dark3); margin-bottom: 6px; display: block; }
+.form-control-custom {
+  width: 100%; padding: 10px 13px; border: 1px solid var(--border); border-radius: 9px;
+  font-size: 13.5px; outline: none; font-family: var(--font); transition: all 0.2s; background: white; color: var(--dark);
+}
+.form-control-custom:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
+select.form-control-custom { cursor: pointer; }
+
+/* CHECKOUT RECEIPT */
+.receipt-box {
+  background: var(--light); border-radius: 12px; padding: 20px;
+  border: 1px dashed var(--border);
+}
+.receipt-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; font-size: 13.5px; border-bottom: 1px solid var(--border);
+}
+.receipt-row:last-child { border-bottom: none; }
+.receipt-row.total { font-weight: 800; font-size: 16px; color: var(--primary); margin-top: 4px; }
+.receipt-label { color: var(--muted); }
+.receipt-value { font-weight: 600; }
+
+/* ALERTS */
+.alert-custom {
+  padding: 12px 16px; border-radius: 10px; font-size: 13.5px; font-weight: 500;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.alert-success { background: #d1fae5; color: #065f46; }
+.alert-danger { background: #fee2e2; color: #991b1b; }
+.alert-info { background: #dbeafe; color: #1e40af; }
+.alert-warning { background: #fef3c7; color: #92400e; }
+
+/* LOADING */
+.spinner-overlay {
+  position: fixed; inset: 0; background: rgba(255,255,255,0.8);
+  display: flex; align-items: center; justify-content: center; z-index: 9999; display: none;
+}
+.spinner-ring {
+  width: 40px; height: 40px; border: 4px solid var(--border);
+  border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* TOAST */
+.toast-container-custom {
+  position: fixed; bottom: 24px; right: 24px; z-index: 10000;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.toast-custom {
+  padding: 14px 18px; border-radius: 12px; color: white; font-size: 13.5px; font-weight: 500;
+  display: flex; align-items: center; gap: 10px; min-width: 280px; max-width: 360px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15); animation: slideInRight 0.3s ease;
+}
+.toast-success { background: #10b981; }
+.toast-error { background: #ef4444; }
+.toast-info { background: var(--primary); }
+.toast-warning { background: #f59e0b; }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* EMPTY STATE */
+.empty-state { padding: 48px; text-align: center; }
+.empty-state i { font-size: 48px; color: var(--border); margin-bottom: 12px; display: block; }
+.empty-state p { color: var(--muted); font-size: 14px; }
+
+/* DASHBOARD WELCOME */
+.welcome-card {
+  background: linear-gradient(135deg, var(--primary) 0%, #2563eb 50%, var(--secondary) 100%);
+  border-radius: 20px; padding: 28px 32px; color: white; margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.welcome-card::before {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%;
+}
+.welcome-card::after {
+  content: ''; position: absolute; bottom: -40px; right: 80px;
+  width: 120px; height: 120px; background: rgba(255,255,255,0.05); border-radius: 50%;
+}
+.welcome-card h2 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.welcome-card p { font-size: 13.5px; opacity: 0.8; }
+.welcome-card .big-icon { font-size: 56px; opacity: 0.15; position: absolute; right: 30px; top: 50%; transform: translateY(-50%); }
+
+/* VEHICLE PREMIUM TOGGLE */
+.premium-vehicles-section { display: none; }
+.premium-vehicles-section.show { display: block; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.show { transform: translateX(0); }
+  #topbar { left: 0; }
+  #main-content { margin-left: 0; }
+  .btn-sidebar-toggle { display: block; }
+  .search-box input { width: 160px; }
+  .stat-card .value { font-size: 22px; }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--light); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ID BADGE */
+.id-badge {
+  font-family: monospace; font-size: 12px; font-weight: 700;
+  background: var(--light); color: var(--dark3); padding: 3px 8px;
+  border-radius: 5px; border: 1px solid var(--border);
+}
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light);
+  color: var(--primary); font-weight: 700; font-size: 13px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div style="display:flex;align-items:center;">
+      <div class="logo-icon"><i class="fa-solid fa-square-parking"></i></div>
+      <div>
+        <span>ParkEase</span>
+        <small>Management System</small>
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item">
+      <button class="nav-link active" onclick="showPage('dashboard')">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </button>
+    </div>
+    <div class="nav-section-label">Management</div>
+    <div class="nav-item">
+      <button class="nav-link" onclick="showPage('customers')">
+        <i class="fa-solid fa-users"></i> Customers
+      </button>
+    </div>
+    <div class="nav-item">
+      <button class="nav-link" onclick="showPage('vehicles')">
+        <i class="fa-solid fa-car"></i> Vehicles
+      </button>
+    </div>
+    <div class="nav-item">
+      <button class="nav-link" onclick="showPage('slots')">
+        <i class="fa-solid fa-table-cells-large"></i> Parking Slots
+      </button>
+    </div>
+    <div class="nav-item">
+      <button class="nav-link" onclick="showPage('tickets')">
+        <i class="fa-solid fa-ticket"></i> Tickets
+      </button>
+    </div>
+    <div class="nav-item">
+      <button class="nav-link" onclick="showPage('payments')">
+        <i class="fa-solid fa-credit-card"></i> Payments
+      </button>
+    </div>
+  </nav>
+  <div class="sidebar-bottom">
+    <span class="badge-version">ParkEase v1.0.0 &bull; 2026</span>
+  </div>
+</aside>
+
+<!-- Topbar -->
+<header id="topbar">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <button class="btn-sidebar-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div>
+      <div class="page-title" id="page-title-text">Dashboard</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-time" id="live-time">--:--:--</div>
+    <button class="btn-primary-custom" style="padding:8px 14px;" onclick="refreshCurrentPage()" title="Refresh">
+      <i class="fa-solid fa-rotate-right"></i>
+    </button>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main id="main-content">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="welcome-card">
+      <h2>Welcome to ParkEase</h2>
+      <p>Monitor your parking facility in real-time. Manage slots, tickets, and payments effortlessly.</p>
+      <i class="fa-solid fa-square-parking big-icon"></i>
+    </div>
+    <div class="row g-3 mb-4" id="dash-stats">
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="icon" style="background:#dbeafe;color:var(--primary);"><i class="fa-solid fa-table-cells-large"></i></div>
+          <div class="value text-primary" id="stat-total-slots">--</div>
+          <div class="label">Total Slots</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="icon" style="background:#d1fae5;color:#059669;"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="value" style="color:#059669;" id="stat-available">--</div>
+          <div class="label">Available Slots</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="icon" style="background:#fee2e2;color:#dc2626;"><i class="fa-solid fa-car"></i></div>
+          <div class="value text-danger" id="stat-occupied">--</div>
+          <div class="label">Occupied Slots</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-ticket"></i></div>
+          <div class="value" style="color:#d97706;" id="stat-active-tickets">--</div>
+          <div class="label">Active Tickets</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="icon" style="background:#d1fae5;color:#059669;"><i class="fa-solid fa-peso-sign"></i></div>
+          <div class="value" style="color:#059669;" id="stat-today-rev">--</div>
+          <div class="label">Today's Revenue</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-users"></i></div>
+          <div class="value" style="color:#7c3aed;" id="stat-customers">--</div>
+          <div class="label">Total Customers</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="icon" style="background:#fce7f3;color:#db2777;"><i class="fa-solid fa-car-side"></i></div>
+          <div class="value" style="color:#db2777;" id="stat-vehicles">--</div>
+          <div class="label">Total Vehicles</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="icon" style="background:#d1fae5;color:#059669;"><i class="fa-solid fa-coins"></i></div>
+          <div class="value" style="color:#059669;" id="stat-total-rev">--</div>
+          <div class="label">Total Revenue</div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-8">
+        <div class="card-custom">
+          <div class="card-header-custom">
+            <h5><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Recent Tickets</h5>
+            <button class="btn-primary-custom" style="font-size:12px;padding:6px 12px;" onclick="showPage('tickets')">View All</button>
+          </div>
+          <div class="table-responsive-custom">
+            <table class="table-custom">
+              <thead><tr><th>Ticket</th><th>Customer</th><th>Plate</th><th>Slot</th><th>Status</th></tr></thead>
+              <tbody id="dash-recent-tickets"><tr><td colspan="5" class="empty-state"><i class="fa-solid fa-inbox"></i><p>Loading...</p></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card-custom">
+          <div class="card-header-custom"><h5><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Slot Overview</h5></div>
+          <div class="card-body-custom" id="slot-overview" style="padding:16px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div id="page-customers" class="page">
+    <div class="card-custom">
+      <div class="card-header-custom">
+        <h5><i class="fa-solid fa-users me-2 text-primary"></i>Customer Management</h5>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="search-box"><i class="fa-solid fa-search"></i><input type="text" id="search-customers" placeholder="Search customers..." oninput="searchCustomers()"></div>
+          <button class="btn-primary-custom" onclick="openCustomerModal()"><i class="fa-solid fa-plus"></i> Add Customer</button>
+        </div>
+      </div>
+      <div class="table-responsive-custom">
+        <table class="table-custom">
+          <thead><tr><th>Customer ID</th><th>Name</th><th>Contact Number</th><th>Vehicles</th><th>Actions</th></tr></thead>
+          <tbody id="customers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- VEHICLES -->
+  <div id="page-vehicles" class="page">
+    <div class="card-custom">
+      <div class="card-header-custom">
+        <h5><i class="fa-solid fa-car me-2 text-primary"></i>Vehicle Management</h5>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="search-box"><i class="fa-solid fa-search"></i><input type="text" id="search-vehicles" placeholder="Search vehicles..." oninput="searchVehicles()"></div>
+          <button class="btn-primary-custom" onclick="openVehicleModal()"><i class="fa-solid fa-plus"></i> Add Vehicle</button>
+        </div>
+      </div>
+      <div class="table-responsive-custom">
+        <table class="table-custom">
+          <thead><tr><th>Vehicle ID</th><th>Plate Number</th><th>Type</th><th>Owner</th><th>Actions</th></tr></thead>
+          <tbody id="vehicles-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLOTS -->
+  <div id="page-slots" class="page">
+    <div class="card-custom mb-3">
+      <div class="card-header-custom">
+        <h5><i class="fa-solid fa-table-cells-large me-2 text-primary"></i>Parking Slots</h5>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <select id="filter-slot-type" class="form-control-custom" style="width:150px;" onchange="loadSlots()">
+            <option value="">All Types</option>
+            <option value="Standard">Standard (₱30/hr)</option>
+            <option value="Premium">Premium (₱50/hr)</option>
+          </select>
+          <select id="filter-slot-status" class="form-control-custom" style="width:150px;" onchange="loadSlots()">
+            <option value="">All Status</option>
+            <option value="Available">Available</option>
+            <option value="Occupied">Occupied</option>
+          </select>
+          <button class="btn-primary-custom" onclick="openSlotModal()"><i class="fa-solid fa-plus"></i> Add Slot</button>
+        </div>
+      </div>
+      <div class="card-body-custom" style="padding:16px;">
+        <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;"><div style="width:14px;height:14px;background:#d1fae5;border:2px solid #10b981;border-radius:3px;"></div> Available</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;"><div style="width:14px;height:14px;background:#fef2f2;border:2px solid #ef4444;border-radius:3px;"></div> Occupied</div>
+          <div style="font-size:13px;color:var(--muted);">Standard: A1-A## | Premium: B1-B##</div>
+        </div>
+      </div>
+      <div id="slots-grid" class="slot-grid"></div>
+    </div>
+    <div class="card-custom">
+      <div class="card-header-custom"><h5><i class="fa-solid fa-list me-2 text-primary"></i>Slot List</h5></div>
+      <div class="table-responsive-custom">
+        <table class="table-custom">
+          <thead><tr><th>Slot ID</th><th>Slot Number</th><th>Type</th><th>Rate/Hour</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="slots-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKETS -->
+  <div id="page-tickets" class="page">
+    <div class="card-custom">
+      <div class="card-header-custom">
+        <h5><i class="fa-solid fa-ticket me-2 text-primary"></i>Ticket Management</h5>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="search-box"><i class="fa-solid fa-search"></i><input type="text" id="search-tickets" placeholder="Search tickets..." oninput="searchTickets()"></div>
+          <select id="filter-ticket-status" class="form-control-custom" style="width:140px;" onchange="loadTickets()">
+            <option value="">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <button class="btn-primary-custom" onclick="openTicketModal()"><i class="fa-solid fa-plus"></i> New Ticket</button>
+        </div>
+      </div>
+      <div class="table-responsive-custom">
+        <table class="table-custom">
+          <thead><tr><th>Ticket ID</th><th>Customer</th><th>Plate</th><th>Slot</th><th>Entry Time</th><th>Exit Time</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="tickets-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENTS -->
+  <div id="page-payments" class="page">
+    <div class="card-custom">
+      <div class="card-header-custom">
+        <h5><i class="fa-solid fa-credit-card me-2 text-primary"></i>Payment Records</h5>
+        <div class="search-box"><i class="fa-solid fa-search"></i><input type="text" id="search-payments" placeholder="Search payments..." oninput="searchPayments()"></div>
+      </div>
+      <div class="table-responsive-custom">
+        <table class="table-custom">
+          <thead><tr><th>Payment ID</th><th>Ticket</th><th>Customer</th><th>Plate</th><th>Slot</th><th>Amount</th><th>Method</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="payments-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Customer Modal -->
+<div class="modal fade modal-custom" id="customerModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="customerModalTitle">Add Customer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="customer-alert"></div>
+        <input type="hidden" id="customer-id">
+        <div class="mb-3">
+          <label class="form-label-custom">Full Name *</label>
+          <input type="text" class="form-control-custom" id="customer-name" placeholder="Enter full name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-custom">Contact Number *</label>
+          <input type="text" class="form-control-custom" id="customer-contact" placeholder="e.g. 09171234567">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-primary-custom" onclick="saveCustomer()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vehicle Modal -->
+<div class="modal fade modal-custom" id="vehicleModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="vehicleModalTitle">Add Vehicle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="vehicle-alert"></div>
+        <input type="hidden" id="vehicle-id">
+        <div class="mb-3">
+          <label class="form-label-custom">Owner (Customer) *</label>
+          <select class="form-control-custom" id="vehicle-customer">
+            <option value="">Select customer...</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-custom">Plate Number *</label>
+          <input type="text" class="form-control-custom" id="vehicle-plate" placeholder="e.g. ABC 1234" style="text-transform:uppercase;">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-custom">Vehicle Type *</label>
+          <select class="form-control-custom" id="vehicle-type">
+            <option value="">Select type...</option>
+            <option value="Sedan">Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="Pickup Truck">Pickup Truck</option>
+            <option value="Van">Van</option>
+            <option value="Motorcycle">Motorcycle</option>
+            <option value="Truck">Truck</option>
+            <option value="Hatchback">Hatchback</option>
+            <option value="Coupe">Coupe</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-primary-custom" onclick="saveVehicle()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slot Modal -->
+<div class="modal fade modal-custom" id="slotModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="slotModalTitle">Add Parking Slot</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="slot-alert"></div>
+        <input type="hidden" id="slot-id">
+        <div class="mb-3">
+          <label class="form-label-custom">Slot Type *</label>
+          <select class="form-control-custom" id="slot-type" onchange="updateSlotRate()">
+            <option value="Standard">Standard (₱30/hour, 1 vehicle)</option>
+            <option value="Premium">Premium (₱50/hour, up to 2 vehicles)</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-custom">Rate Per Hour</label>
+          <div class="form-control-custom" id="slot-rate-display" style="background:var(--light);cursor:not-allowed;">₱30.00</div>
+        </div>
+        <div class="alert-custom alert-info" style="margin:0;">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>Slot number is automatically assigned based on type (Standard: A#, Premium: B#)</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-primary-custom" onclick="saveSlot()"><i class="fa-solid fa-floppy-disk"></i> Add Slot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ticket Modal -->
+<div class="modal fade modal-custom" id="ticketModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Parking Ticket</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="ticket-alert"></div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label-custom">Customer *</label>
+            <select class="form-control-custom" id="ticket-customer" onchange="loadCustomerVehicles()">
+              <option value="">Select customer...</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-custom">Vehicle *</label>
+            <select class="form-control-custom" id="ticket-vehicle" disabled>
+              <option value="">Select vehicle...</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-custom">Slot Type *</label>
+            <select class="form-control-custom" id="ticket-slot-type" onchange="loadAvailableSlots()">
+              <option value="">Select slot type...</option>
+              <option value="Standard">Standard (₱30/hr - 1 vehicle)</option>
+              <option value="Premium">Premium (₱50/hr - up to 2 vehicles)</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-custom">Parking Slot *</label>
+            <select class="form-control-custom" id="ticket-slot" disabled>
+              <option value="">Select slot...</option>
+            </select>
+          </div>
+          <!-- Premium second vehicle section -->
+          <div class="col-12 premium-vehicles-section" id="premium-section">
+            <div class="alert-custom alert-warning">
+              <i class="fa-solid fa-star"></i>
+              <div><strong>Premium Slot:</strong> You can park 1 to 2 vehicles. Optionally add a second vehicle below.</div>
+            </div>
+            <div class="card-custom" style="padding:16px;">
+              <label class="form-label-custom" style="margin-bottom:10px;">Second Vehicle (Optional)</label>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label-custom" style="font-size:12px;">Customer for 2nd Vehicle</label>
+                  <select class="form-control-custom" id="ticket-customer2" onchange="loadCustomer2Vehicles()">
+                    <option value="">Same as above / None</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label-custom" style="font-size:12px;">2nd Vehicle</label>
+                  <select class="form-control-custom" id="ticket-vehicle2" disabled>
+                    <option value="">None</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 p-3" style="background:var(--light);border-radius:10px;" id="ticket-rate-preview">
+          <div style="font-size:13px;color:var(--muted);">Select a slot to see pricing details</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-primary-custom" onclick="saveTicket()"><i class="fa-solid fa-ticket"></i> Issue Ticket</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="modal fade modal-custom" id="checkoutModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:linear-gradient(135deg,#059669,#10b981);color:white;">
+        <h5 class="modal-title"><i class="fa-solid fa-receipt me-2"></i>Checkout & Payment</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="checkout-alert"></div>
+        <input type="hidden" id="checkout-ticket-id">
+        <div class="receipt-box mb-3" id="checkout-receipt">
+          <!-- Filled by JS -->
+        </div>
+        <div>
+          <label class="form-label-custom">Payment Method *</label>
+          <select class="form-control-custom" id="checkout-payment-method">
+            <option value="">Select payment method...</option>
+            <option value="Cash">Cash</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+            <option value="GCash">GCash</option>
+            <option value="PayMaya">PayMaya</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn-primary-custom" style="background:#059669;" onclick="processCheckout()">
+          <i class="fa-solid fa-circle-check"></i> Confirm Checkout
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Ticket Modal -->
+<div class="modal fade modal-custom" id="viewTicketModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-ticket me-2 text-primary"></i>Ticket Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="view-ticket-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- View Payment Modal -->
+<div class="modal fade modal-custom" id="viewPaymentModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-receipt me-2 text-primary"></i>Payment Receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="view-payment-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade modal-custom" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center" style="padding:28px;">
+        <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:#dc2626;">
+          <i class="fa-solid fa-trash"></i>
+        </div>
+        <h5 style="font-weight:700;margin-bottom:8px;">Delete Record?</h5>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:20px;" id="delete-confirm-msg">This action cannot be undone.</p>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-danger" id="delete-confirm-btn" onclick="confirmDelete()">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container-custom" id="toast-container"></div>
+
+<!-- Spinner -->
+<div class="spinner-overlay" id="spinner">
+  <div class="spinner-ring"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+const API_BASE = 'api';
+let deleteCallback = null;
+let currentPage = 'dashboard';
+
+// ===== UTILITIES =====
+function showSpinner() { document.getElementById('spinner').style.display = 'flex'; }
+function hideSpinner() { document.getElementById('spinner').style.display = 'none'; }
+
+function showToast(msg, type = 'success') {
+  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info', warning: 'fa-triangle-exclamation' };
+  const el = document.createElement('div');
+  el.className = `toast-custom toast-${type}`;
+  el.innerHTML = `<i class="fa-solid ${icons[type] || icons.success}"></i><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.style.animation = 'none', 100);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+function showAlert(id, msg, type = 'danger') {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<div class="alert-custom alert-${type}"><i class="fa-solid fa-circle-info"></i><span>${msg}</span></div>`;
+}
+
+function clearAlert(id) { const el = document.getElementById(id); if (el) el.innerHTML = ''; }
+
+async function api(endpoint, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${API_BASE}/${endpoint}`, opts);
+  return res.json();
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('en-PH', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function formatMoney(n) { return '₱' + parseFloat(n || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+function calcDuration(entry, exit) {
+  const ms = new Date(exit) - new Date(entry);
+  const totalMins = Math.floor(ms / 60000);
+  const hours = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  return `${hours}h ${mins}m`;
+}
+
+function calcBilledHours(entry, exit) {
+  const ms = new Date(exit) - new Date(entry);
+  const diffHours = ms / 3600000;
+  return Math.max(1, Math.ceil(diffHours * 4) / 4);
+}
+
+// ===== NAVIGATION =====
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelector(`[onclick="showPage('${page}')"]`).classList.add('active');
+  const titles = { dashboard: 'Dashboard', customers: 'Customers', vehicles: 'Vehicles', slots: 'Parking Slots', tickets: 'Tickets', payments: 'Payments' };
+  document.getElementById('page-title-text').textContent = titles[page];
+  currentPage = page;
+  const loaders = { dashboard: loadDashboard, customers: loadCustomers, vehicles: loadVehicles, slots: loadSlots, tickets: loadTickets, payments: loadPayments };
+  if (loaders[page]) loaders[page]();
+  if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('show');
+}
+
+function refreshCurrentPage() { showPage(currentPage); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); }
+
+// Live clock
+setInterval(() => {
+  document.getElementById('live-time').textContent = new Date().toLocaleTimeString('en-PH');
+}, 1000);
+
+// ===== DASHBOARD =====
+async function loadDashboard() {
+  const res = await api('dashboard.php');
+  if (!res.success) return;
+  const d = res.data;
+  document.getElementById('stat-total-slots').textContent = d.slots.total;
+  document.getElementById('stat-available').textContent = d.slots.available;
+  document.getElementById('stat-occupied').textContent = d.slots.occupied;
+  document.getElementById('stat-active-tickets').textContent = d.active_tickets;
+  document.getElementById('stat-today-rev').textContent = formatMoney(d.today_revenue);
+  document.getElementById('stat-customers').textContent = d.total_customers;
+  document.getElementById('stat-vehicles').textContent = d.total_vehicles;
+  document.getElementById('stat-total-rev').textContent = formatMoney(d.total_revenue);
+
+  const tbody = document.getElementById('dash-recent-tickets');
+  if (d.recent_tickets.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No tickets yet</p></div></td></tr>';
+  } else {
+    tbody.innerHTML = d.recent_tickets.map(t => `
+      <tr>
+        <td><span class="id-badge">${t.TicketID}</span></td>
+        <td>${t.CustomerName}</td>
+        <td><strong>${t.PlateNumber}</strong></td>
+        <td><span class="badge-${t.SlotType.toLowerCase()}">${t.SlotNumber}</span></td>
+        <td><span class="badge-${t.Status.toLowerCase()}">${t.Status}</span></td>
+      </tr>`).join('');
+  }
+
+  const overview = document.getElementById('slot-overview');
+  overview.innerHTML = d.slot_breakdown.map(s => `
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;">
+        <strong>${s.SlotType}</strong>
+        <span>${s.available}/${s.total} available</span>
+      </div>
+      <div style="background:var(--border);border-radius:20px;height:8px;">
+        <div style="background:${s.SlotType==='Premium'?'#f59e0b':'var(--primary)'};width:${Math.round((s.available/s.total)*100)}%;height:100%;border-radius:20px;transition:width 0.5s;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">${s.SlotType==='Premium'?'₱50/hr':'₱30/hr'} &bull; ${s.total-s.available} occupied</div>
+    </div>`).join('');
+}
+
+// ===== CUSTOMERS =====
+async function loadCustomers(search = '') {
+  const res = await api(`customers.php${search ? '?search=' + encodeURIComponent(search) : ''}`);
+  const tbody = document.getElementById('customers-tbody');
+  if (!res.success || res.data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fa-solid fa-users"></i><p>No customers found</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = res.data.map(c => `
+    <tr>
+      <td><span class="id-badge">${c.CustomerID}</span></td>
+      <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar">${c.Name.charAt(0).toUpperCase()}</div><div><div style="font-weight:600;">${c.Name}</div></div></div></td>
+      <td>${c.ContactNumber}</td>
+      <td><span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">${c.vehicle_count} vehicle${c.vehicle_count!=1?'s':''}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-icon btn-edit" onclick="editCustomer('${c.CustomerID}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-icon btn-delete" onclick="deleteRecord('customer','${c.CustomerID}','${c.Name}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function searchCustomers() { loadCustomers(document.getElementById('search-customers').value); }
+
+function openCustomerModal(id = null) {
+  clearAlert('customer-alert');
+  document.getElementById('customer-id').value = '';
+  document.getElementById('customer-name').value = '';
+  document.getElementById('customer-contact').value = '';
+  document.getElementById('customerModalTitle').textContent = 'Add Customer';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('customerModal')).show();
+}
+
+async function editCustomer(id) {
+  const res = await api(`customers.php?id=${id}`);
+  if (!res.success) { showToast('Failed to load customer', 'error'); return; }
+  const c = res.data;
+  clearAlert('customer-alert');
+  document.getElementById('customer-id').value = c.CustomerID;
+  document.getElementById('customer-name').value = c.Name;
+  document.getElementById('customer-contact').value = c.ContactNumber;
+  document.getElementById('customerModalTitle').textContent = 'Edit Customer';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('customerModal')).show();
+}
+
+async function saveCustomer() {
+  clearAlert('customer-alert');
+  const id = document.getElementById('customer-id').value;
+  const name = document.getElementById('customer-name').value.trim();
+  const contact = document.getElementById('customer-contact').value.trim();
+  if (!name || !contact) { showAlert('customer-alert', 'Name and contact number are required.'); return; }
+  showSpinner();
+  const res = id
+    ? await api('customers.php', 'PUT', { CustomerID: id, Name: name, ContactNumber: contact })
+    : await api('customers.php', 'POST', { Name: name, ContactNumber: contact });
+  hideSpinner();
+  if (res.success) {
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('customerModal')).hide();
+    showToast(res.message, 'success');
+    loadCustomers();
+  } else {
+    showAlert('customer-alert', res.message);
+  }
+}
+
+// ===== VEHICLES =====
+async function loadVehicles(search = '') {
+  const res = await api(`vehicles.php${search ? '?search=' + encodeURIComponent(search) : ''}`);
+  const tbody = document.getElementById('vehicles-tbody');
+  if (!res.success || res.data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fa-solid fa-car"></i><p>No vehicles found</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = res.data.map(v => `
+    <tr>
+      <td><span class="id-badge">${v.VehicleID}</span></td>
+      <td><strong>${v.PlateNumber}</strong></td>
+      <td><span style="background:var(--light);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">${v.VehicleType}</span></td>
+      <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="width:28px;height:28px;font-size:11px;">${v.CustomerName.charAt(0)}</div>${v.CustomerName} <span class="id-badge" style="font-size:10px;">${v.CustomerID}</span></div></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-icon btn-edit" onclick="editVehicle('${v.VehicleID}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-icon btn-delete" onclick="deleteRecord('vehicle','${v.VehicleID}','${v.PlateNumber}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function searchVehicles() { loadVehicles(document.getElementById('search-vehicles').value); }
+
+async function openVehicleModal() {
+  clearAlert('vehicle-alert');
+  document.getElementById('vehicle-id').value = '';
+  document.getElementById('vehicle-plate').value = '';
+  document.getElementById('vehicle-type').value = '';
+  document.getElementById('vehicleModalTitle').textContent = 'Add Vehicle';
+  await loadCustomerDropdown('vehicle-customer', '');
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('vehicleModal')).show();
+}
+
+async function editVehicle(id) {
+  const res = await api(`vehicles.php?id=${id}`);
+  if (!res.success) { showToast('Failed to load vehicle', 'error'); return; }
+  const v = res.data;
+  clearAlert('vehicle-alert');
+  document.getElementById('vehicle-id').value = v.VehicleID;
+  document.getElementById('vehicle-plate').value = v.PlateNumber;
+  document.getElementById('vehicle-type').value = v.VehicleType;
+  document.getElementById('vehicleModalTitle').textContent = 'Edit Vehicle';
+  await loadCustomerDropdown('vehicle-customer', v.CustomerID);
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('vehicleModal')).show();
+}
+
+async function saveVehicle() {
+  clearAlert('vehicle-alert');
+  const id = document.getElementById('vehicle-id').value;
+  const plate = document.getElementById('vehicle-plate').value.trim().toUpperCase();
+  const type = document.getElementById('vehicle-type').value;
+  const custId = document.getElementById('vehicle-customer').value;
+  if (!plate || !type || !custId) { showAlert('vehicle-alert', 'All fields are required.'); return; }
+  showSpinner();
+  const res = id
+    ? await api('vehicles.php', 'PUT', { VehicleID: id, PlateNumber: plate, VehicleType: type, CustomerID: custId })
+    : await api('vehicles.php', 'POST', { PlateNumber: plate, VehicleType: type, CustomerID: custId });
+  hideSpinner();
+  if (res.success) {
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('vehicleModal')).hide();
+    showToast(res.message, 'success');
+    loadVehicles();
+  } else {
+    showAlert('vehicle-alert', res.message);
+  }
+}
+
+// ===== SLOTS =====
+async function loadSlots() {
+  const type = document.getElementById('filter-slot-type')?.value || '';
+  const status = document.getElementById('filter-slot-status')?.value || '';
+  let qs = '';
+  if (type) qs += (qs ? '&' : '?') + 'type=' + type;
+  
+  const res = await api(`slots.php${qs}`);
+  
+  let data = res.data || [];
+  if (status) data = data.filter(s => s.Status === status);
+  
+  // Grid
+  const grid = document.getElementById('slots-grid');
+  if (data.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><i class="fa-solid fa-table-cells-large"></i><p>No slots found</p></div>';
+  } else {
+    grid.innerHTML = data.map(s => `
+      <div class="slot-card ${s.Status.toLowerCase()}" title="${s.Status} - ${s.SlotType}">
+        <div class="slot-num">${s.SlotNumber}</div>
+        <div class="slot-type">${s.SlotType}</div>
+        <div class="slot-rate">₱${parseFloat(s.RatePerHour).toFixed(0)}/hr</div>
+        <div style="margin-top:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;opacity:0.7;">${s.Status}</div>
+      </div>`).join('');
+  }
+  
+  // Table
+  const tbody = document.getElementById('slots-tbody');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-table-cells-large"></i><p>No slots found</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(s => `
+    <tr>
+      <td><span class="id-badge">${s.SlotID}</span></td>
+      <td><strong style="font-size:16px;">${s.SlotNumber}</strong></td>
+      <td><span class="badge-${s.SlotType.toLowerCase()}">${s.SlotType}</span></td>
+      <td><strong>${formatMoney(s.RatePerHour)}/hr</strong></td>
+      <td><span class="badge-${s.Status.toLowerCase()}">${s.Status}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-icon btn-delete" onclick="deleteRecord('slot','${s.SlotID}','Slot ${s.SlotNumber}')" title="Delete" ${s.Status==='Occupied'?'disabled style="opacity:0.4;cursor:not-allowed;"':''}><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openSlotModal() {
+  clearAlert('slot-alert');
+  document.getElementById('slot-id').value = '';
+  document.getElementById('slot-type').value = 'Standard';
+  document.getElementById('slot-rate-display').textContent = '₱30.00';
+  document.getElementById('slotModalTitle').textContent = 'Add Parking Slot';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('slotModal')).show();
+}
+
+function updateSlotRate() {
+  const type = document.getElementById('slot-type').value;
+  document.getElementById('slot-rate-display').textContent = type === 'Premium' ? '₱50.00' : '₱30.00';
+}
+
+async function saveSlot() {
+  clearAlert('slot-alert');
+  const type = document.getElementById('slot-type').value;
+  if (!type) { showAlert('slot-alert', 'Slot type is required.'); return; }
+  showSpinner();
+  const res = await api('slots.php', 'POST', { SlotType: type });
+  hideSpinner();
+  if (res.success) {
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('slotModal')).hide();
+    showToast(`Slot ${res.SlotNumber} added successfully!`, 'success');
+    loadSlots();
+  } else {
+    showAlert('slot-alert', res.message);
+  }
+}
+
+// ===== TICKETS =====
+async function loadTickets(search = '') {
+  const status = document.getElementById('filter-ticket-status')?.value || '';
+  let qs = [];
+  if (status) qs.push('status=' + status);
+  if (search) qs.push('search=' + encodeURIComponent(search));
+  const res = await api(`tickets.php${qs.length ? '?' + qs.join('&') : ''}`);
+  const tbody = document.getElementById('tickets-tbody');
+  if (!res.success || res.data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-ticket"></i><p>No tickets found</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = res.data.map(t => `
+    <tr>
+      <td><span class="id-badge">${t.TicketID}</span></td>
+      <td><div style="font-weight:600;">${t.CustomerName}</div></td>
+      <td><strong>${t.PlateNumber}</strong> <span style="font-size:11px;color:var(--muted);">${t.VehicleType}</span></td>
+      <td><span class="badge-${t.SlotType.toLowerCase()}">${t.SlotNumber}</span></td>
+      <td style="white-space:nowrap;">${formatDate(t.EntryTime)}</td>
+      <td style="white-space:nowrap;">${t.ExitTime ? formatDate(t.ExitTime) : '<span style="color:var(--muted);">Active</span>'}</td>
+      <td><span class="badge-${t.Status.toLowerCase()}">${t.Status}</span></td>
+      <td>
+        <div style="display:flex;gap:5px;">
+          <button class="btn-icon btn-view" onclick="viewTicket('${t.TicketID}')" title="View Details"><i class="fa-solid fa-eye"></i></button>
+          ${t.Status === 'Active' ? `<button class="btn-icon btn-checkout" onclick="openCheckout('${t.TicketID}')" title="Checkout"><i class="fa-solid fa-right-from-bracket"></i></button>` : ''}
+          ${t.Status === 'Completed' ? `<button class="btn-icon btn-delete" onclick="deleteRecord('ticket','${t.TicketID}','Ticket ${t.TicketID}')" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function searchTickets() { loadTickets(document.getElementById('search-tickets').value); }
+
+async function loadCustomerDropdown(selectId, selectedVal = '') {
+  const res = await api('customers.php');
+  const sel = document.getElementById(selectId);
+  const prefix = selectId.includes('2') ? '<option value="">Same as above / None</option>' : '<option value="">Select customer...</option>';
+  sel.innerHTML = prefix + (res.data || []).map(c => `<option value="${c.CustomerID}" ${c.CustomerID === selectedVal ? 'selected' : ''}>${c.Name} (${c.CustomerID})</option>`).join('');
+}
+
+async function openTicketModal() {
+  clearAlert('ticket-alert');
+  document.getElementById('ticket-customer').value = '';
+  document.getElementById('ticket-vehicle').value = '';
+  document.getElementById('ticket-vehicle').disabled = true;
+  document.getElementById('ticket-slot-type').value = '';
+  document.getElementById('ticket-slot').value = '';
+  document.getElementById('ticket-slot').disabled = true;
+  document.getElementById('ticket-rate-preview').innerHTML = '<div style="font-size:13px;color:var(--muted);">Select a slot to see pricing details</div>';
+  document.getElementById('premium-section').classList.remove('show');
+  
+  await loadCustomerDropdown('ticket-customer');
+  await loadCustomerDropdown('ticket-customer2');
+  document.getElementById('ticket-vehicle2').disabled = true;
+  
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('ticketModal')).show();
+}
+
+async function loadCustomerVehicles() {
+  const custId = document.getElementById('ticket-customer').value;
+  const vehicleSel = document.getElementById('ticket-vehicle');
+  vehicleSel.innerHTML = '<option value="">Loading...</option>';
+  vehicleSel.disabled = true;
+  if (!custId) { vehicleSel.innerHTML = '<option value="">Select vehicle...</option>'; return; }
+  const res = await api(`vehicles.php?customer_id=${custId}`);
+  const vehicles = res.data || [];
+  if (vehicles.length === 0) {
+    vehicleSel.innerHTML = '<option value="">No vehicles for this customer</option>';
+  } else {
+    vehicleSel.innerHTML = '<option value="">Select vehicle...</option>' + vehicles.map(v => `<option value="${v.VehicleID}">${v.PlateNumber} - ${v.VehicleType}</option>`).join('');
+    vehicleSel.disabled = false;
+  }
+}
+
+async function loadCustomer2Vehicles() {
+  const custId = document.getElementById('ticket-customer2').value;
+  const vehicleSel = document.getElementById('ticket-vehicle2');
+  vehicleSel.innerHTML = '<option value="">None</option>';
+  vehicleSel.disabled = true;
+  if (!custId) return;
+  const res = await api(`vehicles.php?customer_id=${custId}`);
+  const vehicles = res.data || [];
+  if (vehicles.length > 0) {
+    vehicleSel.innerHTML = '<option value="">None</option>' + vehicles.map(v => `<option value="${v.VehicleID}">${v.PlateNumber} - ${v.VehicleType}</option>`).join('');
+    vehicleSel.disabled = false;
+  }
+}
+
+async function loadAvailableSlots() {
+  const slotType = document.getElementById('ticket-slot-type').value;
+  const slotSel = document.getElementById('ticket-slot');
+  const premiumSection = document.getElementById('premium-section');
+  
+  slotSel.innerHTML = '<option value="">Loading...</option>';
+  slotSel.disabled = true;
+  premiumSection.classList.remove('show');
+  document.getElementById('ticket-rate-preview').innerHTML = '<div style="font-size:13px;color:var(--muted);">Select a slot to see pricing details</div>';
+  
+  if (!slotType) { slotSel.innerHTML = '<option value="">Select slot...</option>'; return; }
+  
+  const res = await api(`slots.php?type=${slotType}&available=1`);
+  const slots = res.data || [];
+  
+  if (slotType === 'Premium') {
+    // For premium, show slots that have < 2 active tickets
+    const availSlots = [];
+    for (const s of slots) {
+      availSlots.push(s); // slots with available status loaded
+    }
+    // Also check partially occupied premium slots
+    const allPremium = await api(`slots.php?type=Premium`);
+    const occupiedPremium = (allPremium.data || []).filter(s => s.Status === 'Occupied');
+    for (const s of occupiedPremium) {
+      // Check if it has room for another vehicle
+      const res2 = await fetch(`${API_BASE}/tickets.php?status=Active&search=${s.SlotNumber}`);
+      const t = await res2.json();
+      const cnt = (t.data || []).filter(x => x.SlotID === s.SlotID).length;
+      if (cnt < 2) availSlots.push({ ...s, Status: 'Partial' });
+    }
+    slotSel.innerHTML = '<option value="">Select slot...</option>' + availSlots.map(s => `<option value="${s.SlotID}" data-rate="${s.RatePerHour}">${s.SlotNumber} - ${s.Status === 'Partial' ? '1/2 Used' : 'Available'}</option>`).join('');
+    premiumSection.classList.add('show');
+    // Populate customer2 dropdown
+    await loadCustomerDropdown('ticket-customer2');
+  } else {
+    slotSel.innerHTML = '<option value="">Select slot...</option>' + slots.map(s => `<option value="${s.SlotID}" data-rate="${s.RatePerHour}">${s.SlotNumber} - Available</option>`).join('');
+  }
+  
+  if (slots.length === 0 && slotType !== 'Premium') {
+    slotSel.innerHTML = '<option value="">No available slots</option>';
+  } else {
+    slotSel.disabled = false;
+  }
+  
+  slotSel.onchange = () => {
+    const opt = slotSel.options[slotSel.selectedIndex];
+    const rate = opt?.dataset?.rate;
+    if (rate && slotSel.value) {
+      const isFree = slotType === 'Premium' ? '(up to 2 vehicles share this slot)' : '(1 vehicle)';
+      document.getElementById('ticket-rate-preview').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:700;font-size:15px;">${slotType} Slot — ${opt.text.split(' - ')[0]}</div>
+            <div style="font-size:12px;color:var(--muted);">${isFree}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:800;font-size:20px;color:var(--primary);">₱${parseFloat(rate).toFixed(2)}</div>
+            <div style="font-size:12px;color:var(--muted);">per hour</div>
+          </div>
+        </div>`;
+    } else {
+      document.getElementById('ticket-rate-preview').innerHTML = '<div style="font-size:13px;color:var(--muted);">Select a slot to see pricing details</div>';
+    }
+  };
+}
+
+async function saveTicket() {
+  clearAlert('ticket-alert');
+  const custId = document.getElementById('ticket-customer').value;
+  const vehicleId = document.getElementById('ticket-vehicle').value;
+  const slotId = document.getElementById('ticket-slot').value;
+  
+  if (!custId || !vehicleId || !slotId) {
+    showAlert('ticket-alert', 'Customer, Vehicle, and Slot are required.');
+    return;
+  }
+  
+  showSpinner();
+  const res = await api('tickets.php', 'POST', { CustomerID: custId, VehicleID: vehicleId, SlotID: slotId });
+  
+  if (!res.success) {
+    hideSpinner();
+    showAlert('ticket-alert', res.message);
+    return;
+  }
+  
+  // Handle second vehicle for premium
+  const vehicle2Id = document.getElementById('ticket-vehicle2')?.value;
+  const customer2Id = document.getElementById('ticket-customer2')?.value;
+  const slotType = document.getElementById('ticket-slot-type').value;
+  
+  if (slotType === 'Premium' && vehicle2Id) {
+    const custFor2 = customer2Id || custId;
+    const res2 = await api('tickets.php', 'POST', { CustomerID: custFor2, VehicleID: vehicle2Id, SlotID: slotId });
+    if (!res2.success) {
+      hideSpinner();
+      showAlert('ticket-alert', `First ticket created (${res.TicketID}), but 2nd vehicle failed: ${res2.message}`);
+      loadTickets();
+      loadSlots();
+      return;
+    }
+    hideSpinner();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('ticketModal')).hide();
+    showToast(`Tickets issued: ${res.TicketID} & ${res2.TicketID}`, 'success');
+  } else {
+    hideSpinner();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('ticketModal')).hide();
+    showToast(`Ticket ${res.TicketID} issued successfully!`, 'success');
+  }
+  loadTickets();
+  loadSlots();
+}
+
+async function viewTicket(id) {
+  const res = await api(`tickets.php?id=${id}`);
+  if (!res.success) { showToast('Failed to load ticket', 'error'); return; }
+  const t = res.data;
+  
+  let durationHtml = '';
+  if (t.ExitTime) {
+    const billedHrs = calcBilledHours(t.EntryTime, t.ExitTime);
+    durationHtml = `
+      <div class="receipt-row"><span class="receipt-label">Duration</span><span class="receipt-value">${calcDuration(t.EntryTime, t.ExitTime)}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Billed Hours</span><span class="receipt-value">${billedHrs} hrs</span></div>`;
+  }
+  
+  document.getElementById('view-ticket-body').innerHTML = `
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="receipt-box">
+          <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:var(--primary);"><i class="fa-solid fa-ticket me-2"></i>Ticket Info</div>
+          <div class="receipt-row"><span class="receipt-label">Ticket ID</span><span class="id-badge">${t.TicketID}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Status</span><span class="badge-${t.Status.toLowerCase()}">${t.Status}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Entry Time</span><span class="receipt-value">${formatDate(t.EntryTime)}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Exit Time</span><span class="receipt-value">${t.ExitTime ? formatDate(t.ExitTime) : '—'}</span></div>
+          ${durationHtml}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="receipt-box">
+          <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:var(--primary);"><i class="fa-solid fa-user me-2"></i>Customer & Vehicle</div>
+          <div class="receipt-row"><span class="receipt-label">Customer</span><span class="receipt-value">${t.CustomerName}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Contact</span><span class="receipt-value">${t.ContactNumber}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Plate</span><span class="receipt-value">${t.PlateNumber}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Vehicle Type</span><span class="receipt-value">${t.VehicleType}</span></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="receipt-box">
+          <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:var(--primary);"><i class="fa-solid fa-square-parking me-2"></i>Parking Slot</div>
+          <div class="receipt-row"><span class="receipt-label">Slot</span><span class="receipt-value">${t.SlotNumber}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Type</span><span class="badge-${t.SlotType.toLowerCase()}">${t.SlotType}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Rate</span><span class="receipt-value">${formatMoney(t.RatePerHour)}/hr</span></div>
+        </div>
+      </div>
+      ${t.Amount ? `
+      <div class="col-md-6">
+        <div class="receipt-box">
+          <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:#059669;"><i class="fa-solid fa-receipt me-2"></i>Payment</div>
+          <div class="receipt-row"><span class="receipt-label">Payment ID</span><span class="id-badge">${t.PaymentID}</span></div>
+          <div class="receipt-row total"><span>Amount Paid</span><span>${formatMoney(t.Amount)}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Method</span><span class="receipt-value">${t.PaymentMethod}</span></div>
+          <div class="receipt-row"><span class="receipt-label">Date</span><span class="receipt-value">${formatDate(t.PaymentDate)}</span></div>
+        </div>
+      </div>` : ''}
+    </div>`;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('viewTicketModal')).show();
+}
+
+async function openCheckout(ticketId) {
+  const res = await api(`tickets.php?id=${ticketId}`);
+  if (!res.success) { showToast('Failed to load ticket', 'error'); return; }
+  const t = res.data;
+  
+  const now = new Date();
+  const entry = new Date(t.EntryTime);
+  const diffMs = now - entry;
+  const diffHours = diffMs / 3600000;
+  const billedHours = Math.max(1, Math.ceil(diffHours * 4) / 4);
+  const amount = billedHours * parseFloat(t.RatePerHour);
+  
+  const mins = Math.floor(diffMs / 60000);
+  const hrs = Math.floor(mins / 60);
+  const rem = mins % 60;
+  
+  document.getElementById('checkout-ticket-id').value = ticketId;
+  document.getElementById('checkout-payment-method').value = '';
+  clearAlert('checkout-alert');
+  
+  document.getElementById('checkout-receipt').innerHTML = `
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Parking Receipt</div>
+      <div style="font-size:22px;font-weight:800;color:var(--primary);">${t.SlotNumber} — ${t.SlotType}</div>
+    </div>
+    <div class="receipt-row"><span class="receipt-label">Ticket ID</span><span class="id-badge">${t.TicketID}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Customer</span><span class="receipt-value">${t.CustomerName}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Plate Number</span><span class="receipt-value">${t.PlateNumber}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Entry Time</span><span class="receipt-value">${formatDate(t.EntryTime)}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Exit Time (Now)</span><span class="receipt-value">${now.toLocaleString('en-PH',{month:'short',day:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>
+    <div class="receipt-row"><span class="receipt-label">Actual Duration</span><span class="receipt-value">${hrs}h ${rem}m</span></div>
+    <div class="receipt-row"><span class="receipt-label">Billed Hours</span><span class="receipt-value">${billedHours} hrs (rounded up)</span></div>
+    <div class="receipt-row"><span class="receipt-label">Rate Per Hour</span><span class="receipt-value">${formatMoney(t.RatePerHour)}</span></div>
+    <div class="receipt-row total"><span>Total Amount Due</span><span>${formatMoney(amount)}</span></div>`;
+  
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('checkoutModal')).show();
+}
+
+async function processCheckout() {
+  clearAlert('checkout-alert');
+  const ticketId = document.getElementById('checkout-ticket-id').value;
+  const method = document.getElementById('checkout-payment-method').value;
+  if (!method) { showAlert('checkout-alert', 'Please select a payment method.', 'warning'); return; }
+  showSpinner();
+  const res = await api('tickets.php?action=checkout', 'POST', { TicketID: ticketId, PaymentMethod: method });
+  hideSpinner();
+  if (res.success) {
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('checkoutModal')).hide();
+    showToast(`Checkout complete! ${formatMoney(res.Amount)} received.`, 'success');
+    loadTickets();
+    loadSlots();
+    if (currentPage === 'dashboard') loadDashboard();
+  } else {
+    showAlert('checkout-alert', res.message);
+  }
+}
+
+// ===== PAYMENTS =====
+async function loadPayments(search = '') {
+  const res = await api(`payments.php${search ? '?search=' + encodeURIComponent(search) : ''}`);
+  const tbody = document.getElementById('payments-tbody');
+  if (!res.success || res.data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-credit-card"></i><p>No payment records found</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = res.data.map(p => `
+    <tr>
+      <td><span class="id-badge">${p.PaymentID}</span></td>
+      <td><span class="id-badge">${p.TicketID}</span></td>
+      <td>${p.CustomerName}</td>
+      <td><strong>${p.PlateNumber}</strong></td>
+      <td><span class="badge-${p.SlotType.toLowerCase()}">${p.SlotNumber}</span></td>
+      <td><strong style="color:var(--success);">${formatMoney(p.Amount)}</strong></td>
+      <td><span style="background:var(--light);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">${p.PaymentMethod}</span></td>
+      <td style="white-space:nowrap;">${formatDate(p.PaymentDate)}</td>
+      <td>
+        <button class="btn-icon btn-view" onclick="viewPayment('${p.PaymentID}')" title="View Receipt"><i class="fa-solid fa-receipt"></i></button>
+      </td>
+    </tr>`).join('');
+}
+
+function searchPayments() { loadPayments(document.getElementById('search-payments').value); }
+
+async function viewPayment(id) {
+  const res = await api(`payments.php?id=${id}`);
+  if (!res.success) { showToast('Failed to load payment', 'error'); return; }
+  const p = res.data;
+  const billedHrs = calcBilledHours(p.EntryTime, p.ExitTime);
+  
+  document.getElementById('view-payment-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px dashed var(--border);">
+      <i class="fa-solid fa-square-parking" style="font-size:32px;color:var(--primary);display:block;margin-bottom:8px;"></i>
+      <div style="font-size:20px;font-weight:800;">ParkEase Receipt</div>
+      <div style="font-size:13px;color:var(--muted);">${formatDate(p.PaymentDate)}</div>
+    </div>
+    <div class="receipt-box">
+      <div class="receipt-row"><span class="receipt-label">Payment ID</span><span class="id-badge">${p.PaymentID}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Ticket ID</span><span class="id-badge">${p.TicketID}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Customer</span><span class="receipt-value">${p.CustomerName}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Contact</span><span class="receipt-value">${p.ContactNumber}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Vehicle</span><span class="receipt-value">${p.PlateNumber} (${p.VehicleType})</span></div>
+      <div class="receipt-row"><span class="receipt-label">Slot</span><span class="receipt-value">${p.SlotNumber} — ${p.SlotType}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Entry</span><span class="receipt-value">${formatDate(p.EntryTime)}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Exit</span><span class="receipt-value">${formatDate(p.ExitTime)}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Duration</span><span class="receipt-value">${calcDuration(p.EntryTime, p.ExitTime)}</span></div>
+      <div class="receipt-row"><span class="receipt-label">Rate</span><span class="receipt-value">${formatMoney(p.RatePerHour)}/hr</span></div>
+      <div class="receipt-row"><span class="receipt-label">Method</span><span class="receipt-value">${p.PaymentMethod}</span></div>
+      <div class="receipt-row total" style="border-top:2px solid var(--border);margin-top:4px;padding-top:10px;">
+        <span>Total Paid</span><span>${formatMoney(p.Amount)}</span>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--muted);">Thank you for using ParkEase! 🚗</div>`;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('viewPaymentModal')).show();
+}
+
+// ===== DELETE =====
+let deleteTarget = { type: null, id: null };
+
+function deleteRecord(type, id, name) {
+  deleteTarget = { type, id };
+  document.getElementById('delete-confirm-msg').textContent = `Delete ${name}? This action cannot be undone.`;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteModal')).show();
+}
+
+async function confirmDelete() {
+  const { type, id } = deleteTarget;
+  const endpoints = { customer: 'customers.php', vehicle: 'vehicles.php', slot: 'slots.php', ticket: 'tickets.php' };
+  showSpinner();
+  const res = await api(`${endpoints[type]}?id=${id}`, 'DELETE');
+  hideSpinner();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteModal')).hide();
+  if (res.success) {
+    showToast(res.message, 'success');
+    const reloaders = { customer: loadCustomers, vehicle: loadVehicles, slot: loadSlots, ticket: loadTickets };
+    if (reloaders[type]) reloaders[type]();
+    if (type === 'slot' || type === 'ticket') loadSlots();
+  } else {
+    showToast(res.message, 'error');
+  }
+}
+
+// ===== INIT =====
+loadDashboard();
+// Auto-refresh dashboard every 30 seconds
+setInterval(() => { if (currentPage === 'dashboard') loadDashboard(); }, 30000);
+</script>
+</body>
+</html>
